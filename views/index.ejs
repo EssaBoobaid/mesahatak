@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <% const siteUrl = typeof baseUrl !== 'undefined' ? baseUrl : 'https://mesahatak.com'; %>
+  <% const ogImage = `${siteUrl}/images/logo.png`; %>
+  <title><%= title || 'مساحاتك - الرئيسية' %></title>
+  <meta name="description" content="مساحتك المثالية في انتظارك. احجز المساحات التي تناسب احتياجاتك: قاعات دراسية ومكاتب وملاعب ومسارح وصالات تدريبية ومواقف سيارات بكل سهولة وأمان." />
+  <link rel="canonical" href="<%= siteUrl %>/" />
+  <link rel="icon" type="image/png" href="<%= ogImage %>" />
+  <meta name="theme-color" content="#0b1f36" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="مساحاتك | Mesahatak" />
+  <meta property="og:locale" content="ar_SA" />
+  <meta property="og:title" content="مساحاتك | احجز مساحتك المثالية" />
+  <meta property="og:description" content="منصة موحدة لإدارة المساحات والحجوزات والتأجير مع مدفوعات موثقة وتنبيهات لحظية." />
+  <meta property="og:url" content="<%= siteUrl %>/" />
+  <meta property="og:image" content="<%= ogImage %>" />
+  <meta property="og:image:alt" content="شعار مساحاتك" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="مساحاتك | احجز مساحتك المثالية" />
+  <meta name="twitter:description" content="منصة عربية موحدة لإدارة المساحات، الحجوزات، والمدفوعات." />
+  <meta name="twitter:image" content="<%= ogImage %>" />
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "مساحاتك | Mesahatak",
+      "url": "<%= siteUrl %>/",
+      "logo": "<%= ogImage %>",
+      "description": "منصة لحجز وإدارة المساحات مع دفع موثق وتنبيهات لحظية.",
+      "sameAs": ["https://mesahatak.com/"]
+    }
+  </script>
+  <link rel="stylesheet" href="/css/index.css" />
+</head>
+<body>
+  <%- include('partials/navbar', { lang: typeof lang !== 'undefined' ? lang : 'ar', active: 'home', user: typeof user !== 'undefined' ? user : null }) %>
+
+  <main class="landing">
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <p class="pill">مساحات جاهزة للحجز</p>
+          <h1>مساحتك تبدأ من هنا</h1>
+          <p class="lede">منصة موحدة لإدارة المساحات والحجوزات والتأجير، بتجربة سلسة وواجهة عربية مريحة للعين.</p>
+          <div class="cta-buttons">
+            <a class="btn-primary" href="/spaces">استكشف المساحات</a>
+            <% if (user) { %>
+              <a class="btn-ghost" href="/dashboard">لوحة التحكم</a>
+            <% } else { %>
+              <a class="btn-ghost" href="/auth/register">إنشاء حساب</a>
+            <% } %>
+          </div>
+          <div class="hero-meta">
+            <span class="chip">إدارة الحجز والدفع</span>
+            <span class="chip">تقارير وإحصائيات مباشرة</span>
+            <span class="chip">دعم ملاك ومستأجرين</span>
+          </div>
+        </div>
+        <div class="hero-card">
+          <div class="hero-card-head">
+            <p class="eyebrow">جاهز للتشغيل</p>
+            <h3>انطلق بخطوة واحدة</h3>
+          </div>
+          <div class="hero-metrics">
+            <div class="metric">
+              <span class="label">إطلاق</span>
+              <span class="value">أضف مساحتك وابدأ التأجير فوراً</span>
+            </div>
+            <div class="metric">
+              <span class="label">تشغيل</span>
+              <span class="value">افتح الحجوزات واستأجر بسهولة</span>
+            </div>
+            <div class="metric">
+              <span class="label">طمأنينة</span>
+              <span class="value">مدفوعات موثقة وتنبيهات لحظية للطرفين</span>
+            </div>
+          </div>
+          <a class="card-cta" href="/auth/login">سجّل دخولك وابدأ الآن <i class="fa-solid fa-arrow-left"></i></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="feature-section">
+      <div class="container section-head">
+        <p class="pill">لماذا مساحاتك؟</p>
+        <h2>كل ما تحتاجه لإدارة المساحات في مكان واحد</h2>
+        <p class="section-lede">من نشر المساحة إلى تتبع الحجوزات والمدفوعات، صممنا التجربة لتكون عملية، واضحة، وسريعة.</p>
+      </div>
+      <div class="container feature-grid">
+        <div class="feature-card">
+          <div class="icon"><i class="fa-solid fa-calendar-check"></i></div>
+          <h3>حجوزات بلا تعقيد</h3>
+          <p>تأكيد فوري، تنبيهات للمستخدمين، وجدولة مرنة تناسب أنماط التأجير المختلفة.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon"><i class="fa-solid fa-chart-line"></i></div>
+          <h3>تقارير فورية</h3>
+          <p>أداء شهري، عوائد، ونِسَب إشغال بمخططات واضحة بنفس ألوان لوحة التحكم.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon"><i class="fa-solid fa-headset"></i></div>
+          <h3>دعم ملاك ومستأجرين</h3>
+          <p>رحلة متكاملة للطرفين مع واجهة عربية خفيفة على العين وخيارات دفع موثوقة.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="steps-section">
+      <div class="container section-head">
+        <p class="pill">3 خطوات سهلة</p>
+        <h2>استكشف، احجز، واستلم التأكيد فوراً</h2>
+        <p class="section-lede">مسار واضح للمستأجرين يجعل حجز المساحة يتم بدقائق وبإشعارات فورية.</p>
+      </div>
+      <div class="container steps-grid">
+        <div class="step-card">
+          <span class="step-number">1</span>
+          <h4>ابحث واختر</h4>
+          <p>تصفح الفئات، وابحث حسب المدينة والوقت، وشاهد تفاصيل المساحة بوضوح.</p>
+        </div>
+        <div class="step-card">
+          <span class="step-number">2</span>
+          <h4>احجز مباشرة</h4>
+          <p>تأكد من التوافر، واضبط المدة اليومية أو بالساعات، وأرسل طلبك فوراً.</p>
+        </div>
+        <div class="step-card">
+          <span class="step-number">3</span>
+          <h4>ادفع واستلم التأكيد</h4>
+          <p>أكمل الدفع الموثق، واستلم تنبيه الحجز مع تفاصيل الوصول والتواصل.</p>
+        </div>
+      </div>
+      <div class="container section-head">
+        <h2>انشر، فعّل، وابدأ بالتحصيل</h2>
+        <p class="section-lede">مسار بسيط يختصر الوقت ويُبقيك على اطلاع بكل جديد.</p>
+      </div>
+      <div class="container steps-grid">
+        <div class="step-card">
+          <span class="step-number">1</span>
+          <h4>أضف مساحتك</h4>
+          <p>حمّل الصور وحدد الأسعار والجدولة من نموذج بسيط.</p>
+        </div>
+        <div class="step-card">
+          <span class="step-number">2</span>
+          <h4>فعّل الحجوزات</h4>
+          <p>افتح التوافر، واختر نمط التأجير اليومي أو بالساعات.</p>
+        </div>
+        <div class="step-card">
+          <span class="step-number">3</span>
+          <h4>تابع الأداء</h4>
+          <p>راقب الإشغال والعوائد، وتواصل مع عملائك من مكان واحد.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="value-section">
+      <div class="container value-grid">
+        <div class="value-card">
+          <p class="pill">موثوق</p>
+          <h3>تجربة موحدة ومتسقة</h3>
+          <p class="muted">كل الصفحات تشترك في نفس الخطوط والألوان: خلفية فاتحة، نص داكن #0b1f36، وبطاقات واضحة تسهّل القراءة.</p>
+          <div class="value-chips">
+            <span class="chip">تجربة عربية كاملة</span>
+            <span class="chip">تصميم مريح للعين</span>
+            <span class="chip">تنقل سلس</span>
+          </div>
+        </div>
+        <div class="value-card highlight">
+          <p class="pill">جاهزية</p>
+          <h3>انطلق خلال دقائق</h3>
+          <p class="muted">المنصة جاهزة بالمسارات الأساسية: الحجز، الدفع، التوصيات، والتقارير. فقط أضف مساحتك وابدأ.</p>
+          <a class="card-cta" href="/auth/register">ابدأ مجاناً الآن <i class="fa-solid fa-arrow-left"></i></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-final">
+      <div class="container cta-box">
+        <div>
+          <p class="pill">جاهز للانطلاق؟</p>
+          <h2>انشر مساحتك اليوم وابدأ بتلقي الحجوزات</h2>
+          <p class="section-lede">واجهة موحدة، ألوان هادئة، ولوحة تحكم محدثة تتماشى مع بقية الموقع.</p>
+        </div>
+        <div class="cta-actions">
+          <a class="btn-primary" href="/dashboard/add-space">أضف مساحة جديدة</a>
+          <a class="btn-ghost" href="/spaces">تصفح المساحات</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

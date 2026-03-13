@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title || 'إضافة مساحة' %></title>
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/add-space.css" />
+</head>
+<body>
+  <%- include('../partials/navbar', { lang, active: 'dashboard', user: typeof user !== 'undefined' ? user : null }) %>
+
+  <main class="main-container add-space">
+    <section class="workflow-header">
+      <h1><i class="fa-solid fa-plus"></i><span><%= lang === 'en' ? 'Add a New Space' : 'إضافة مساحة جديدة' %></span></h1>
+      <p class="workflow-description">
+        <%= lang === 'en'
+          ? 'حدد نوع الإيجار اليومي أو بالساعة، ضع السعر، وتأكد من تحديد التوافر لمنع التعارضات.'
+          : 'حدد نوع الإيجار اليومي أو بالساعة، ضع السعر، وتأكد من تحديد التوافر لمنع التعارضات.' %>
+      </p>
+      <div class="workflow-steps">
+        <div class="workflow-step">
+          <p class="step-title">1) <%= lang === 'en' ? 'Pricing' : 'التسعير' %></p>
+          <p class="step-description"><%= lang === 'en' ? 'Choose daily or hourly pricing and set the right amount.' : 'اختر بين التسعير اليومي أو بالساعة وحدد السعر المناسب.' %></p>
+        </div>
+        <div class="workflow-step">
+          <p class="step-title">2) <%= lang === 'en' ? 'Availability' : 'التوافر' %></p>
+          <p class="step-description"><%= lang === 'en' ? 'Define date range and working hours to avoid conflicts.' : 'حدد فترة التوافر وساعات العمل لمنع التعارضات.' %></p>
+        </div>
+      </div>
+    </section>
+
+    <% if (errors && errors.length) { %>
+      <div class="error-message">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <div>
+          <% errors.forEach(function(err) { %>
+            <div><%= err %></div>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+
+    <% if (submitted) { %>
+      <div class="success-message">
+        <i class="fa-solid fa-circle-check"></i>
+        <span><%= lang === 'en' ? 'Space created successfully.' : 'تم إنشاء المساحة بنجاح.' %></span>
+      </div>
+    <% } %>
+
+    <section class="form-container active">
+      <div class="form-header">
+        <i class="fa-solid fa-building"></i>
+        <div>
+          <h2><%= lang === 'en' ? 'Space details' : 'تفاصيل المساحة' %></h2>
+          <p class="workflow-description small"><%= lang === 'en' ? 'املأ الحقول التالية لإضافة مساحة مع نظام حجز مرن.' : 'املأ الحقول التالية لإضافة مساحة مع نظام حجز مرن.' %></p>
+        </div>
+      </div>
+
+      <form action="/spaces/new?lang=<%= lang %>" method="post" class="space-form" novalidate enctype="multipart/form-data">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>اسم المساحة <span class="required">*</span></label>
+            <input type="text" name="name" value="<%= old?.name || '' %>" placeholder="مثال: شقة فندقية راقية" required />
+          </div>
+
+          <div class="form-group">
+            <label>المدينة <span class="required">*</span></label>
+            <% const citySelected = (old?.city_id || '').toString(); %>
+            <select name="city_id" required>
+              <option value="">اختر المدينة</option>
+              <% cities.forEach(c => { %>
+                <option value="<%= c.id %>" <%= citySelected === String(c.id) ? 'selected' : '' %>><%= c.name %></option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>الفئة الرئيسية <span class="required">*</span></label>
+            <% const catSelected = old?.category || ''; %>
+            <select name="category" id="category" required>
+              <option value="">اختر الفئة</option>
+              <% categories.forEach(cat => { %>
+                <option value="<%= cat.code %>" <%= catSelected === cat.code ? 'selected' : '' %>><%= cat.name_ar %></option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div class="form-group" id="subcategory-group">
+            <label>النوع <span class="required">*</span></label>
+            <% const subSelected = old?.subcategory || ''; %>
+            <select name="subcategory" id="subcategory">
+              <option value="">اختر النوع</option>
+              <% categories.forEach(cat => { const subs = subsByCat[cat.id] || []; if (subs.length) { %>
+                <optgroup label="<%= cat.name_ar %>">
+                  <% subs.forEach(sub => { %>
+                    <option data-cat="<%= cat.code %>" value="<%= sub.value %>" <%= subSelected === sub.value ? 'selected' : '' %>><%= sub.value %></option>
+                  <% }) %>
+                </optgroup>
+              <% } }) %>
+            </select>
+          </div>
+
+          <div class="form-group" id="category-other" style="display: none;">
+            <label>نوع المساحة (أخرى) <span class="required">*</span></label>
+            <input type="text" name="category_other" value="<%= old?.category_other || '' %>" placeholder="اكتب نوع المساحة" />
+          </div>
+
+          <div class="form-group">
+            <label>رابط Google Maps (اختياري)</label>
+            <input type="url" name="google_maps_url" value="<%= old?.google_maps_url || '' %>" placeholder="https://maps.google.com/..." />
+          </div>
+
+          <div class="form-group">
+            <label>نوع الإيجار <span class="required">*</span></label>
+            <% const rt = old?.rental_type || 'daily'; %>
+            <div class="radio-group">
+              <label class="pill"><input type="radio" name="rental_type" value="daily" <%= rt === 'daily' ? 'checked' : '' %> /> إيجار يومي</label>
+              <label class="pill"><input type="radio" name="rental_type" value="hourly" <%= rt === 'hourly' ? 'checked' : '' %> /> إيجار بالساعات</label>
+              <label class="pill"><input type="radio" name="rental_type" value="monthly" <%= rt === 'monthly' ? 'checked' : '' %> /> إيجار شهري</label>
+              <label class="pill"><input type="radio" name="rental_type" value="yearly" <%= rt === 'yearly' ? 'checked' : '' %> /> إيجار سنوي</label>
+            </div>
+          </div>
+
+          <div class="form-group rental-daily">
+            <label>السعر اليومي (ريال) <span class="required">*</span></label>
+            <input type="number" min="0" step="0.01" name="price_per_day" value="<%= old?.price_per_day || '' %>" placeholder="مثال: 300" />
+          </div>
+
+          <div class="form-group rental-hourly" style="display:none;">
+            <label>السعر لكل فترة (ريال) <span class="required">*</span></label>
+            <input type="number" min="0" step="0.01" name="price_per_block" value="<%= old?.price_per_block || '' %>" placeholder="مثال: 150" />
+          </div>
+
+          <div class="form-group rental-hourly" style="display:none;">
+            <label>مدة كل حجز (ساعات) <span class="required">*</span></label>
+            <input type="number" min="1" step="1" name="block_hours" value="<%= old?.block_hours || '' %>" placeholder="مثال: 2" />
+          </div>
+
+          <div class="form-group rental-hourly" style="display:none;">
+            <label>أوقات العمل (من - إلى) <span class="required">*</span></label>
+            <div class="time-input-group">
+              <div class="form-group no-margin">
+                <label>من</label>
+                <input type="time" name="work_start" value="<%= old?.work_start || '' %>" />
+              </div>
+              <div class="form-group no-margin">
+                <label>إلى</label>
+                <input type="time" name="work_end" value="<%= old?.work_end || '' %>" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group rental-monthly" style="display:none;">
+            <label>السعر الشهري (ريال) <span class="required">*</span></label>
+            <input type="number" min="0" step="0.01" name="price_per_month" value="<%= old?.price_per_month || '' %>" placeholder="مثال: 4500" />
+          </div>
+
+          <div class="form-group rental-monthly" style="display:none;">
+            <label>أقل مدة (أشهر) <span class="required">*</span></label>
+            <input type="number" min="1" step="1" name="min_months" value="<%= old?.min_months || 1 %>" placeholder="مثال: 3" />
+          </div>
+
+          <div class="form-group rental-yearly" style="display:none;">
+            <label>السعر السنوي (ريال) <span class="required">*</span></label>
+            <input type="number" min="0" step="0.01" name="price_per_year" value="<%= old?.price_per_year || '' %>" placeholder="مثال: 52000" />
+          </div>
+
+          <div class="form-group rental-yearly" style="display:none;">
+            <label>أقل مدة (سنوات) <span class="required">*</span></label>
+            <input type="number" min="1" step="1" name="min_years" value="<%= old?.min_years || 1 %>" placeholder="مثال: 1" />
+          </div>
+
+          <div class="form-group">
+            <label>فترة الإتاحة (اختياري)</label>
+            <div class="time-input-group">
+              <div class="form-group no-margin">
+                <label>من تاريخ</label>
+                <input type="date" name="availability_start" value="<%= old?.availability_start || '' %>" />
+              </div>
+              <div class="form-group no-margin">
+                <label>إلى تاريخ</label>
+                <input type="date" name="availability_end" value="<%= old?.availability_end || '' %>" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group full">
+            <label>وصف المساحة <span class="required">*</span></label>
+            <textarea name="description" rows="4" placeholder="اكتب وصف مفصل عن المساحة" required><%= old?.description || '' %></textarea>
+          </div>
+
+          <div class="form-group full">
+            <label>محتوى المساحة <span class="required">*</span></label>
+            <textarea name="content" rows="4" placeholder="اكتب محتوى المساحة، كل عنصر في سطر منفصل (مثال: مكيف، إنترنت، مواقف…)" required><%= old?.content || '' %></textarea>
+          </div>
+
+          <div class="form-group full">
+            <label>صور المساحة (اسحب وأفلت أو اختر من جهازك)</label>
+            <div class="dropzone" id="image-dropzone">
+              <p><i class="fa-solid fa-cloud-arrow-up"></i> اسحب الصور هنا أو اضغط للاختيار (حتى 12 صورة، كل صورة حتى 5MB)</p>
+              <input type="file" id="image_files" name="image_files" accept="image/*" multiple hidden />
+            </div>
+            <p class="helper">يمكن رفع حتى 12 صورة. سيتم حفظ الصور المرفوعة على الخادم.</p>
+            <div class="image-preview" id="image-preview"></div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn-primary">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span><%= lang === 'en' ? 'Save Space' : 'حفظ المساحة' %></span>
+          </button>
+          <a class="btn-secondary" href="/dashboard?lang=<%= lang %>">
+            <i class="fa-solid fa-gauge-high"></i>
+            <span><%= lang === 'en' ? 'Back to Dashboard' : 'العودة للوحة التحكم' %></span>
+          </a>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script src="/js/add-space.js"></script>
+</body>
+</html>

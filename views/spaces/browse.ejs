@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="<%= lang === 'en' ? 'en' : 'ar' %>" dir="<%= lang === 'en' ? 'ltr' : 'rtl' %>">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap">
+  <link rel="stylesheet" href="/css/spaces.css" />
+</head>
+<body class="spaces-page">
+  <%- include('../partials/navbar', { lang, active, user: typeof user !== 'undefined' ? user : null }) %>
+
+  <main class="spaces-shell">
+    <section class="spaces-hero">
+      <div class="hero-bg"></div>
+      <div class="hero-content">
+        <div class="eyebrow">مساحتك</div>
+        <h1>ابحث عن المساحة التي تريدها</h1>
+        <p>خيارات عديدة تغطي سكني، تجاري، رياضي وترفيهي، مستودعات ولوجستيات، مناسبات وفعاليات.</p>
+        <div class="hero-cats">الفئات المتاحة: <%= (categories || []).slice(0, 4).map(c => c.name_ar).join('، ') %><% if ((categories || []).length > 4) { %> ... وأكثر<% } %></div>
+        <div class="hero-highlights">
+          <span><i class="fa-regular fa-gem"></i> انتقاء محسّن</span>
+          <span><i class="fa-regular fa-clock"></i> بحث سريع</span>
+          <span><i class="fa-regular fa-circle-check"></i> نتائج موثوقة</span>
+        </div>
+      </div>
+
+      <form class="filter-card" action="/spaces" method="get">
+        <input type="hidden" name="lang" value="<%= lang %>" />
+        <div class="filter-head">
+          <div>
+            <p class="filter-kicker">تصفية ذكية</p>
+            <h3>حدد ما يناسب رؤيتك</h3>
+          </div>
+          <div class="filter-actions">
+            <button type="submit" class="btn primary"><i class="fa-solid fa-filter"></i><span>تطبيق الفلاتر</span></button>
+            <a class="btn ghost" href="/spaces?lang=<%= lang %>"><i class="fa-solid fa-rotate-left"></i><span>إعادة الضبط</span></a>
+          </div>
+        </div>
+        <div class="filter-grid">
+          <label class="field">
+            <span>المدينة</span>
+            <select name="city">
+              <option value="">كل المدن</option>
+              <% cities.forEach(city => { %>
+                <option value="<%= city.id %>" <%= filters.city === String(city.id) ? 'selected' : '' %>><%= city.name %></option>
+              <% }) %>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>الفئة</span>
+            <select name="category" id="categoryFilter">
+              <option value="">كل الفئات</option>
+              <% categories.forEach(cat => { %>
+                <option value="<%= cat.code %>" data-id="<%= cat.id %>" <%= filters.category === cat.code ? 'selected' : '' %>><%= cat.name_ar %></option>
+              <% }) %>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>النوع</span>
+            <select name="subcategory" id="subcategoryFilter">
+              <option value="">كل الأنواع</option>
+              <% categories.forEach(cat => { const subs = subsByCat[cat.id] || []; if (subs.length) { %>
+                <optgroup label="<%= cat.name_ar %>" data-cat="<%= cat.code %>">
+                  <% subs.forEach(sub => { %>
+                    <option data-cat="<%= cat.code %>" value="<%= sub.value %>" <%= filters.subcategory === sub.value ? 'selected' : '' %>><%= sub.value %></option>
+                  <% }) %>
+                </optgroup>
+              <% } }) %>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>نمط الإيجار</span>
+            <select name="rentalType">
+              <option value="">الكل</option>
+              <option value="daily" <%= filters.rentalType === 'daily' ? 'selected' : '' %>>يومي</option>
+              <option value="hourly" <%= filters.rentalType === 'hourly' ? 'selected' : '' %>>ساعات</option>
+              <option value="monthly" <%= filters.rentalType === 'monthly' ? 'selected' : '' %>>شهري</option>
+              <option value="yearly" <%= filters.rentalType === 'yearly' ? 'selected' : '' %>>سنوي</option>
+            </select>
+          </label>
+
+          <label class="field search-field">
+            <span>بحث بالكلمات</span>
+            <div class="search-box">
+              <input type="text" name="q" value="<%= filters.q %>" placeholder="اسم المساحة أو الوصف" />
+              <button type="submit" aria-label="بحث"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+          </label>
+        </div>
+      </form>
+    </section>
+
+    <section class="spaces-grid-wrapper">
+      <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+        <div class="alert error"><i class="fa-solid fa-triangle-exclamation"></i><%= errorMessage %></div>
+      <% } %>
+
+      <% if (spaces && spaces.length) { %>
+        <div class="grid-meta">
+          <div class="count"><%= spaces.length %> إعلان متاح</div>
+          <% if (filters.q || filters.city || filters.category || filters.subcategory || filters.rentalType) { %>
+            <div class="active-filters">
+              <span class="chip muted">الفلاتر المفعّلة</span>
+              <% if (filters.city) { const cityName = (cities.find(c => String(c.id) === String(filters.city)) || {}).name; %>
+                <span class="chip">المدينة: <%= cityName %></span>
+              <% } %>
+              <% if (filters.category) { const catName = (categories.find(c => c.code === filters.category) || {}).name_ar || filters.category; %>
+                <span class="chip">الفئة: <%= catName %></span>
+              <% } %>
+              <% if (filters.subcategory) { %>
+                <span class="chip">النوع: <%= filters.subcategory %></span>
+              <% } %>
+              <% if (filters.rentalType) { %>
+                <span class="chip">نمط الإيجار: <%= filters.rentalType === 'daily' ? 'يومي' : filters.rentalType === 'hourly' ? 'ساعات' : filters.rentalType === 'monthly' ? 'شهري' : 'سنوي' %></span>
+              <% } %>
+              <% if (filters.q) { %>
+                <span class="chip">بحث: “<%= filters.q %>”</span>
+              <% } %>
+            </div>
+          <% } else { %>
+            <div class="active-filters subtle">اختر فلاتر لتصفية أدق.</div>
+          <% } %>
+        </div>
+
+        <div class="spaces-grid">
+          <% spaces.forEach(space => { const hero = space.images && space.images.length ? space.images[0].file_path : '/images/placeholder.svg'; const cityName = space.City ? space.City.name : '—'; const catName = (categories.find(c => c.code === space.category) || {}).name_ar || space.category; const desc = space.description ? (space.description.length > 140 ? space.description.slice(0, 140) + '…' : space.description) : ''; %>
+            <article class="space-card">
+              <div class="space-card__media" style="background-image: linear-gradient(145deg, rgba(11, 31, 54, 0.35), rgba(5, 122, 255, 0.15)), url('<%= hero %>');">
+                <div class="rental-badge">
+                  <% if (space.rental_type === 'hourly') { %>
+                    <i class="fa-regular fa-clock"></i> ساعات
+                  <% } else if (space.rental_type === 'daily') { %>
+                    <i class="fa-regular fa-calendar"></i> يومي
+                  <% } else if (space.rental_type === 'monthly') { %>
+                    <i class="fa-regular fa-calendar-days"></i> شهري
+                  <% } else if (space.rental_type === 'yearly') { %>
+                    <i class="fa-regular fa-calendar-check"></i> سنوي
+                  <% } else { %>
+                    <i class="fa-regular fa-circle"></i> متاح
+                  <% } %>
+                </div>
+              </div>
+
+              <div class="space-card__body">
+                <div class="space-card__top">
+                  <h3 class="space-card__title"><%= space.name %></h3>
+                  <div class="pill pill-soft"><i class="fa-solid fa-location-dot"></i><%= cityName %></div>
+                </div>
+
+                <p class="space-card__desc"><%= desc %></p>
+
+                <div class="space-card__meta">
+                  <span class="pill"><i class="fa-solid fa-layer-group"></i><%= catName %></span>
+                  <% if (space.subcategory) { %>
+                    <span class="pill"><i class="fa-solid fa-tag"></i><%= space.subcategory %></span>
+                  <% } %>
+                  <span class="pill alt"><i class="fa-regular fa-user"></i><a href="/reviews?user=<%= space.user_id %>"><%= space.User ? space.User.full_name : 'حساب المعلن' %></a></span>
+                </div>
+
+                <div class="space-card__footer">
+                  <div class="price">
+                    <% if (space.rental_type === 'hourly') { %>
+                      <strong><%= space.price_per_block ? `${space.price_per_block} ر.س` : '—' %></strong>
+                      <span>لـ <%= space.block_hours || '—' %> ساعة</span>
+                    <% } else if (space.rental_type === 'daily') { %>
+                      <strong><%= space.price_per_day ? `${space.price_per_day} ر.س` : '—' %></strong>
+                      <span>لليوم</span>
+                    <% } else if (space.rental_type === 'monthly') { %>
+                      <strong><%= space.price_per_month ? `${space.price_per_month} ر.س` : '—' %></strong>
+                      <span>للشهر <%= space.min_months ? `(حد أدنى ${space.min_months} شهراً)` : '' %></span>
+                    <% } else if (space.rental_type === 'yearly') { %>
+                      <strong><%= space.price_per_year ? `${space.price_per_year} ر.س` : '—' %></strong>
+                      <span>للسنة <%= space.min_years ? `(حد أدنى ${space.min_years} سنة)` : '' %></span>
+                    <% } else { %>
+                      <strong>—</strong>
+                      <span></span>
+                    <% } %>
+                  </div>
+                  <a class="btn text" href="/spaces/<%= space.id %>"><span>عرض التفاصيل</span><i class="fa-solid fa-arrow-left"></i></a>
+                </div>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="empty-state">
+          <i class="fa-regular fa-face-smile-beam"></i>
+          <p>لا توجد إعلانات مطابقة حالياً. جرّب توسيع نطاق البحث أو تغيير الفلاتر.</p>
+        </div>
+      <% } %>
+    </section>
+  </main>
+
+  <%- include('../partials/footer') %>
+
+  <script>
+    (function() {
+      const categorySelect = document.getElementById('categoryFilter');
+      const subcategorySelect = document.getElementById('subcategoryFilter');
+
+      const filterSubs = () => {
+        const selectedCat = categorySelect.value;
+        const options = Array.from(subcategorySelect.querySelectorAll('option[data-cat]'));
+        const groups = Array.from(subcategorySelect.querySelectorAll('optgroup'));
+
+        options.forEach(opt => {
+          const catCode = opt.getAttribute('data-cat');
+          const shouldShow = !selectedCat || selectedCat === catCode;
+          opt.style.display = shouldShow ? '' : 'none';
+          if (!shouldShow && opt.selected) opt.selected = false;
+        });
+
+        groups.forEach(group => {
+          const hasVisible = Array.from(group.querySelectorAll('option')).some(o => o.style.display !== 'none');
+          group.style.display = hasVisible ? '' : 'none';
+        });
+      };
+
+      if (categorySelect && subcategorySelect) {
+        filterSubs();
+        categorySelect.addEventListener('change', filterSubs);
+      }
+    })();
+  </script>
+</body>
+</html>

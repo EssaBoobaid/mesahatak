@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title || 'إنشاء حساب' %></title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/register.css" />
+</head>
+<body>
+  <%- include('../partials/navbar', { lang: 'ar', active: 'register', user: typeof user !== 'undefined' ? user : null }) %>
+
+  <section class="auth-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <p class="eyebrow">مساحتك</p>
+      <h1>أنشئ حسابك وابدأ الحجز أو التأجير بثقة</h1>
+      <p class="lead">بيانات آمنة، تجربة سلسة، ومدن تغطي المملكة</p>
+      <div class="hero-badges">
+        <span><i class="fa-solid fa-shield"></i> حماية وأمان</span>
+        <span><i class="fa-solid fa-bolt"></i> تسجيل سريع</span>
+        <span><i class="fa-solid fa-location-dot"></i> مدن متعددة</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="auth-wrapper">
+    <div class="glass-card">
+      <div class="card-header">
+        <div>
+          <p class="eyebrow">مرحبا بك</p>
+          <h2>إنشاء حساب جديد</h2>
+          <p class="muted">املأ بياناتك للانضمام لمساحتك</p>
+        </div>
+        <i class="fa-solid fa-user-plus"></i>
+      </div>
+
+      <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+        <div class="alert alert-error">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <span><%= errorMessage %></span>
+        </div>
+      <% } %>
+
+      <form class="form-grid" method="POST" action="/auth/register">
+        <div class="form-field">
+          <label for="full_name">الاسم الكامل</label>
+          <div class="input-wrap">
+            <i class="fa-regular fa-user"></i>
+            <input id="full_name" name="full_name" type="text" required placeholder="اكتب اسمك الكامل" autocomplete="name" />
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="email">البريد الإلكتروني</label>
+          <div class="input-wrap">
+            <i class="fa-regular fa-envelope"></i>
+            <input id="email" name="email" type="email" required placeholder="example@mail.com" autocomplete="email" />
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="password">كلمة المرور</label>
+          <div class="input-wrap">
+            <i class="fa-solid fa-lock"></i>
+            <input id="password" name="password" type="password" required placeholder="••••••••" minlength="8" autocomplete="new-password" />
+          </div>
+          <p class="hint">الحد الأدنى 8 أحرف مع أرقام وحروف</p>
+        </div>
+
+        <div class="form-field">
+          <label for="birth_date">تاريخ الميلاد</label>
+          <div class="input-wrap">
+            <i class="fa-regular fa-calendar"></i>
+            <input id="birth_date" name="birth_date" type="date" required />
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="phone">رقم الجوال</label>
+          <div class="input-wrap">
+            <i class="fa-solid fa-phone"></i>
+            <input id="phone" name="phone" type="tel" required placeholder="05XXXXXXXX" autocomplete="tel" />
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="iban">رقم الآيبان (اختياري)</label>
+          <div class="input-wrap">
+            <i class="fa-solid fa-money-check-dollar"></i>
+            <input id="iban" name="iban" type="text" placeholder="SA03 8000 0000 6080 1016 7519" maxlength="34" />
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="city_id">المدينة</label>
+          <div class="input-wrap select">
+            <i class="fa-solid fa-location-dot"></i>
+            <select id="city_id" name="city_id" required>
+              <% const cityOptions = Array.isArray(cities) && cities.length ? cities : [
+                { id: 1, name: 'الرياض' },
+                { id: 2, name: 'جدة' },
+                { id: 3, name: 'مكة المكرمة' },
+                { id: 4, name: 'المدينة المنورة' },
+                { id: 5, name: 'الدمام' },
+                { id: 6, name: 'الخبر' },
+                { id: 7, name: 'الظهران' },
+                { id: 8, name: 'الطائف' },
+                { id: 9, name: 'تبوك' },
+                { id: 10, name: 'حائل' },
+                { id: 11, name: 'أبها' },
+                { id: 12, name: 'خميس مشيط' },
+                { id: 13, name: 'جازان' },
+                { id: 14, name: 'نجران' },
+                { id: 15, name: 'الباحة' },
+                { id: 16, name: 'عرعر' },
+                { id: 17, name: 'سكاكا' },
+                { id: 18, name: 'بيشة' },
+                { id: 19, name: 'ينبع' },
+                { id: 20, name: 'القريات' },
+                { id: 21, name: 'الأحساء' }
+              ]; %>
+              <% cityOptions.forEach(c => { %>
+                <option value="<%= c.id %>"><%= c.name %></option>
+              <% }) %>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">
+            <i class="fa-solid fa-user-check"></i>
+            إنشاء الحساب
+          </button>
+          <a class="ghost" href="/auth/login">لديك حساب؟ تسجيل الدخول</a>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

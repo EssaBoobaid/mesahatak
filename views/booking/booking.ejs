@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/booking.css">
+</head>
+<body class="booking-page">
+  <%- include('../partials/navbar', { lang: 'ar', active: 'booking', user: typeof user !== 'undefined' ? user : null }) %>
+
+  <main class="booking-shell">
+    <section class="hero-card">
+      <div>
+        <p class="eyebrow">الحجز الذكي</p>
+        <h1>اختر المساحة، اعرف التوفر، واحجز فوراً</h1>
+        <p class="muted">نظام حجز يومي وساعي مع خوارزمية تقسيم الفترات وإظهار الأيام المتاحة مباشرة.</p>
+      </div>
+      <div class="hero-badge"><i class="fa-solid fa-sparkles"></i><span>محسّن بالتوفر الحي</span></div>
+    </section>
+
+    <section class="booking-grid">
+      <div class="card picker-card">
+        <header class="card-header">
+          <div>
+            <p class="eyebrow">تفاصيل الحجز</p>
+            <h2>نوع الحجز حسب المساحة (المعلن فقط)</h2>
+          </div>
+        </header>
+
+        <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+          <div class="alert"><i class="fa-solid fa-triangle-exclamation"></i><%= errorMessage %></div>
+        <% } %>
+
+        <% const singleSpace = spaces && spaces.length === 1 ? spaces[0] : null; %>
+        <% if (singleSpace) { %>
+          <div class="field">
+            <label>المساحة</label>
+            <div class="pill strong">سيتم الحجز لهذه المساحة فقط: <%= singleSpace.name %></div>
+            <select id="spaceSelect" class="visually-hidden" aria-hidden="true">
+              <option value="<%= singleSpace.id %>"
+                data-type="<%= singleSpace.rental_type %>"
+                data-daily="<%= singleSpace.price_per_day %>"
+                data-block="<%= singleSpace.price_per_block %>"
+                data-monthly="<%= singleSpace.price_per_month %>"
+                data-yearly="<%= singleSpace.price_per_year %>"
+                data-min-months="<%= singleSpace.min_months %>"
+                data-min-years="<%= singleSpace.min_years %>"
+                data-hours="<%= singleSpace.block_hours %>"
+                data-work-start="<%= singleSpace.work_start %>"
+                data-work-end="<%= singleSpace.work_end %>" selected><%= singleSpace.name %></option>
+            </select>
+            <div class="pill" id="rentalPill">نوع الحجز يحدده المعلن وسيطبق تلقائياً</div>
+          </div>
+        <% } else { %>
+          <div class="field">
+            <label for="spaceSelect">المساحة</label>
+            <select id="spaceSelect" required>
+              <option value="">اختر المساحة</option>
+              <% spaces.forEach(s => { %>
+                <option value="<%= s.id %>"
+                  data-type="<%= s.rental_type %>"
+                  data-daily="<%= s.price_per_day %>"
+                  data-block="<%= s.price_per_block %>"
+                  data-monthly="<%= s.price_per_month %>"
+                  data-yearly="<%= s.price_per_year %>"
+                  data-min-months="<%= s.min_months %>"
+                  data-min-years="<%= s.min_years %>"
+                  data-hours="<%= s.block_hours %>"
+                  data-work-start="<%= s.work_start %>"
+                  data-work-end="<%= s.work_end %>"><%= s.name %></option>
+              <% }) %>
+            </select>
+            <div class="pill" id="rentalPill">اختر المساحة ليظهر نوع الحجز المعتمد من المعلن</div>
+          </div>
+        <% } %>
+
+        <div id="dailyPanel" class="mode-panel is-hidden">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">حجز يومي</p>
+              <h3>الأيام المتاحة (يظهر مثل Sat 12 Jul)</h3>
+            </div>
+            <div class="panel-actions">
+              <button class="ghost" id="prevDailyWindow" type="button"><i class="fa-solid fa-chevron-right"></i></button>
+              <button class="ghost" id="nextDailyWindow" type="button"><i class="fa-solid fa-chevron-left"></i></button>
+              <button class="ghost" id="refreshDaily" type="button"><i class="fa-solid fa-rotate"></i><span>تحديث</span></button>
+            </div>
+          </div>
+          <div id="dayGrid" class="chip-grid"></div>
+          <div class="range-row">
+            <label>من
+              <input type="date" id="dailyStart" />
+            </label>
+            <label>إلى
+              <input type="date" id="dailyEnd" />
+            </label>
+          </div>
+          <div class="range-preview">
+            <div class="badge" id="rangeFrom">من —</div>
+            <div class="badge" id="rangeTo">إلى —</div>
+          </div>
+          <p class="hint" id="dailyHint">اختر يوماً أو نطاقاً متصلاً، وسيتم إخبارك إن كان غير متوفر.</p>
+        </div>
+
+        <div id="hourlyPanel" class="mode-panel is-hidden">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">حجز بالساعة</p>
+              <h3>اختر يوم واحد ثم فترات متتالية</h3>
+            </div>
+            <button class="ghost" id="refreshHourly" type="button"><i class="fa-solid fa-rotate"></i><span>تحديث</span></button>
+          </div>
+          <div class="range-row">
+            <label>اليوم
+              <input type="date" id="hourlyDate" />
+            </label>
+          </div>
+          <div class="chip-grid" id="blockGrid"></div>
+          <p class="hint" id="hourlyHint">اختر ساعة البداية، النظام يقسمها لفترات بطول <span id="blockHoursLabel">—</span> ساعة.</p>
+        </div>
+
+        <div id="monthlyPanel" class="mode-panel is-hidden">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">حجز شهري</p>
+              <h3>اختر تاريخ البداية وعدد الأشهر</h3>
+            </div>
+          </div>
+          <div class="duration-card">
+            <div class="range-row compact">
+              <label>تاريخ البداية
+                <input type="date" id="monthlyStart" />
+              </label>
+              <label class="duration-field">المدة (أشهر)
+                <div class="pill-input">
+                  <input type="number" id="monthlyMonths" min="1" step="1" />
+                  <span class="suffix">شهر</span>
+                </div>
+              </label>
+            </div>
+            <p class="hint">النهاية تُحسب تلقائياً، وسيتم التحقق من التعارض أثناء إنشاء الحجز.</p>
+          </div>
+        </div>
+
+        <div id="yearlyPanel" class="mode-panel is-hidden">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">حجز سنوي</p>
+              <h3>اختر تاريخ البداية وعدد السنوات</h3>
+            </div>
+          </div>
+          <div class="duration-card">
+            <div class="range-row compact">
+              <label>تاريخ البداية
+                <input type="date" id="yearlyStart" />
+              </label>
+              <label class="duration-field">المدة (سنوات)
+                <div class="pill-input">
+                  <input type="number" id="yearlyYears" min="1" step="1" />
+                  <span class="suffix">سنة</span>
+                </div>
+              </label>
+            </div>
+            <p class="hint">النهاية تُحسب تلقائياً، وسيتم التحقق من التعارض أثناء إنشاء الحجز.</p>
+          </div>
+        </div>
+
+        <form id="bookingForm" class="actions">
+          <input type="hidden" name="space_id" id="spaceInput" />
+          <input type="hidden" name="start_time" id="startInput" />
+          <input type="hidden" name="end_time" id="endInput" />
+          <button type="submit" class="btn primary"><i class="fa-solid fa-calendar-check"></i><span>إنشاء الحجز</span></button>
+        </form>
+      </div>
+
+      <aside class="card summary-card">
+        <p class="eyebrow">ملخص سريع</p>
+        <h2 id="summaryTitle">انتظر اختيار المساحة</h2>
+        <div class="summary-line"><span>النوع</span><span id="summaryType">—</span></div>
+        <div class="summary-line"><span>الفترة</span><span id="summaryRange">—</span></div>
+        <div class="summary-line total"><span>الإجمالي</span><span id="summaryPrice">—</span></div>
+        <div class="availability-box" id="availabilityState">سيتم إظهار التوفر والرسائل هنا.</div>
+      </aside>
+    </section>
+  </main>
+
+  <%- include('../partials/footer') %>
+
+  <script src="/js/booking.js"></script>
+</body>
+</html>

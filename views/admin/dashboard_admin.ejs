@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/admin.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" />
+</head>
+<body class="admin-layout">
+  <%- include('../partials/navbar', { lang: 'ar', active: 'dashboard', user: user || null }) %>
+
+  <main class="admin-shell">
+    <div class="admin-hero">
+      <div>
+        <p class="badge-soft">لوحة التحكم - أدمن</p>
+        <h1>نظرة سريعة</h1>
+        <p style="color:#9ca3af; margin:6px 0 0;">أرقام فورية وحركات الحجوزات.</p>
+      </div>
+    </div>
+
+    <section class="admin-grid">
+      <div class="admin-card metric">
+        <span>المستخدمون</span>
+        <strong class="accent"><%= stats?.users || 0 %></strong>
+      </div>
+      <div class="admin-card metric">
+        <span>المساحات</span>
+        <strong><%= stats?.spaces || 0 %></strong>
+      </div>
+      <div class="admin-card metric">
+        <span>الحجوزات</span>
+        <strong class="warn"><%= stats?.bookings || 0 %></strong>
+      </div>
+      <div class="admin-card metric">
+        <span>إجمالي المدفوع (ر.س)</span>
+        <strong class="warn"><%= stats?.revenueGross || 0 %></strong>
+      </div>
+      <div class="admin-card metric">
+        <span>عمولة المنصة 10% (ر.س)</span>
+        <strong class="ok"><%= stats?.revenuePlatform || 0 %></strong>
+      </div>
+    </section>
+
+    <section class="admin-section">
+      <div class="section-header">
+        <h3>عمليات سريعة</h3>
+      </div>
+      <div class="admin-grid">
+        <div class="admin-card">
+          <h4>المساحات</h4>
+          <p class="empty">نشر / إخفاء / حذف المساحات.</p>
+          <a class="link-button" href="/spaces">فتح المساحات</a>
+        </div>
+        <div class="admin-card">
+          <h4>الحجوزات</h4>
+          <p class="empty">اعتماد أو رفض الحجوزات المعلقة.</p>
+          <a class="link-button" href="/booking">إدارة الحجوزات</a>
+        </div>
+        <div class="admin-card">
+          <h4>المراجعات</h4>
+          <p class="empty">مراجعة التعليقات وحجب المسيء.</p>
+          <a class="link-button" href="/reviews">عرض المراجعات</a>
+        </div>
+        <div class="admin-card">
+          <h4>المالية</h4>
+          <p class="empty">حوالات المؤجرين والمدفوعات.</p>
+          <a class="link-button" href="/admin/finance">فتح المالية</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

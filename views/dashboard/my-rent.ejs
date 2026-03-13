@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/my-rent.css">
+</head>
+<body class="my-rent-page">
+  <%- include('../partials/navbar', { lang: 'ar', active: 'my-rent', user: typeof user !== 'undefined' ? user : null }) %>
+
+  <main class="rent-shell">
+    <section class="hero card">
+      <div>
+        <p class="eyebrow">مساحاتي المؤجرة</p>
+        <h1>إدارة مساحاتك</h1>
+        <p class="muted">راجع بيانات المساحة، حدّث الأسعار، أضف صوراً جديدة، أو أوقف المساحة دون فقدان حجوزاتك السابقة.</p>
+      </div>
+      <div class="hero-actions">
+        <a class="btn ghost" href="/dashboard/add-space"><i class="fa-solid fa-plus"></i><span>إضافة مساحة جديدة</span></a>
+      </div>
+    </section>
+
+    <% if (typeof successMessage !== 'undefined' && successMessage) { %>
+      <div class="alert success"><i class="fa-solid fa-circle-check"></i><%= successMessage %></div>
+    <% } %>
+    <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+      <div class="alert warn"><i class="fa-solid fa-triangle-exclamation"></i><%= errorMessage %></div>
+    <% } %>
+
+    <% if (!spaces || !spaces.length) { %>
+      <div class="empty">لا توجد مساحات مؤجرة بعد.</div>
+    <% } %>
+
+    <section class="spaces-grid">
+      <% (spaces || []).forEach(s => { %>
+        <% const img = (s.images && s.images.length) ? s.images[0] : null;
+           let cover = '/images/space-placeholder.jpg';
+           if (img && img.file_path) {
+             const fp = img.file_path.replace(/\\/g, '/');
+             cover = fp.startsWith('http') ? fp : (fp.startsWith('/') ? fp : '/' + fp);
+           }
+           const isClosed = s.status === 'closed';
+        %>
+        <article class="space-card card <%= isClosed ? 'is-closed' : '' %>">
+          <div class="card-head">
+            <div>
+              <p class="eyebrow">معرف #<%= s.id %></p>
+              <h2><%= s.name %></h2>
+              <% const rentLabel = s.rental_type === 'hourly' ? 'إيجار بالساعة' : s.rental_type === 'daily' ? 'إيجار يومي' : s.rental_type === 'monthly' ? 'إيجار شهري' : 'إيجار سنوي'; %>
+              <p class="muted"><%= rentLabel %></p>
+            </div>
+            <div class="pill <%= isClosed ? 'closed' : 'active' %>"><%= isClosed ? 'متوقفة' : 'نشطة' %></div>
+          </div>
+
+          <div class="meta-row">
+            <div class="cover" style="background-image: url('<%= cover %>');"></div>
+            <ul class="meta">
+              <li><span>المدينة</span><strong>&nbsp;<%= s.City ? s.City.name : '—' %></strong></li>
+              <li><span>الفئة</span><strong>&nbsp;<%= s.category %> / <%= s.subcategory %></strong></li>
+              <li><span>السعر</span>
+                <strong>&nbsp;
+                  <% if (s.rental_type === 'hourly') { %>
+                    <%= s.price_per_block ? `${s.price_per_block} ر.س لكل فترة (${s.block_hours || '—'} س)` : '—' %>
+                  <% } else if (s.rental_type === 'daily') { %>
+                    <%= s.price_per_day ? `${s.price_per_day} ر.س/يوم` : '—' %>
+                  <% } else if (s.rental_type === 'monthly') { %>
+                    <%= s.price_per_month ? `${s.price_per_month} ر.س/شهر` : '—' %>
+                    <%= s.min_months ? ` (حد أدنى ${s.min_months} شهر)` : '' %>
+                  <% } else if (s.rental_type === 'yearly') { %>
+                    <%= s.price_per_year ? `${s.price_per_year} ر.س/سنة` : '—' %>
+                    <%= s.min_years ? ` (حد أدنى ${s.min_years} سنة)` : '' %>
+                  <% } else { %>
+                    —
+                  <% } %>
+                </strong>
+              </li>
+              <li><span>الحجوزات</span><strong>&nbsp;<%= s.stats.totalBookings %> إجمالي • <%= s.stats.upcoming %> قادمة</strong></li>
+              <li><span>الإتاحة</span><strong>&nbsp;<%= s.availability_start || '—' %> → <%= s.availability_end || 'مفتوحة' %></strong></li>
+            </ul>
+          </div>
+
+          <div class="forms">
+            <form class="edit-form" action="/dashboard/my-rent/<%= s.id %>/update" method="POST">
+              <div class="field-grid">
+                <label class="field"><span>اسم المساحة</span><input type="text" name="name" value="<%= s.name %>" required></label>
+                <label class="field"><span>الرابط في الخرائط</span><input type="url" name="google_maps_url" value="<%= s.google_maps_url || '' %>" placeholder="https://maps.google.com/..." ></label>
+                <% if (s.rental_type === 'daily') { %>
+                  <label class="field"><span>السعر اليومي</span><input type="number" step="0.01" name="price_per_day" value="<%= s.price_per_day || '' %>"></label>
+                <% } else if (s.rental_type === 'hourly') { %>
+                  <label class="field"><span>السعر لكل فترة</span><input type="number" step="0.01" name="price_per_block" value="<%= s.price_per_block || '' %>"></label>
+                  <label class="field"><span>ساعات كل فترة</span><input type="number" name="block_hours" value="<%= s.block_hours || '' %>"></label>
+                  <label class="field"><span>بداية الدوام</span><input type="time" name="work_start" value="<%= s.work_start || '' %>"></label>
+                  <label class="field"><span>نهاية الدوام</span><input type="time" name="work_end" value="<%= s.work_end || '' %>"></label>
+                <% } else if (s.rental_type === 'monthly') { %>
+                  <label class="field"><span>السعر الشهري</span><input type="number" step="0.01" name="price_per_month" value="<%= s.price_per_month || '' %>"></label>
+                  <label class="field"><span>أقل مدة (أشهر)</span><input type="number" name="min_months" min="1" value="<%= s.min_months || 1 %>"></label>
+                <% } else if (s.rental_type === 'yearly') { %>
+                  <label class="field"><span>السعر السنوي</span><input type="number" step="0.01" name="price_per_year" value="<%= s.price_per_year || '' %>"></label>
+                  <label class="field"><span>أقل مدة (سنوات)</span><input type="number" name="min_years" min="1" value="<%= s.min_years || 1 %>"></label>
+                <% } %>
+                <label class="field"><span>الإتاحة من</span><input type="date" name="availability_start" value="<%= s.availability_start || '' %>"></label>
+                <label class="field"><span>الإتاحة إلى</span><input type="date" name="availability_end" value="<%= s.availability_end || '' %>"></label>
+              </div>
+
+              <div class="field">
+                <span>الوصف</span>
+                <textarea name="description" rows="3"><%= s.description || '' %></textarea>
+              </div>
+              <div class="field">
+                <span>تفاصيل إضافية</span>
+                <textarea name="content" rows="3"><%= s.content || '' %></textarea>
+              </div>
+
+              <div class="actions-row">
+                <button type="submit" class="btn primary"><i class="fa-solid fa-floppy-disk"></i><span>حفظ التعديلات</span></button>
+              </div>
+            </form>
+
+            <form class="images-form" action="/dashboard/my-rent/<%= s.id %>/images" method="POST" enctype="multipart/form-data">
+              <div class="field">
+                <span>إضافة صور جديدة</span>
+                <input type="file" name="image_files" multiple accept="image/*">
+              </div>
+              <button type="submit" class="btn ghost"><i class="fa-solid fa-image"></i><span>إضافة الصور</span></button>
+            </form>
+
+            <form class="danger-form" action="/dashboard/my-rent/<%= s.id %>/delete" method="POST">
+              <button type="submit" class="btn danger"><i class="fa-solid fa-ban"></i><span>حذف المساحة نهائياً</span></button>
+              <p class="muted small">سيتم إزالة المساحة وكل بياناتها.</p>
+            </form>
+          </div>
+        </article>
+      <% }) %>
+    </section>
+  </main>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

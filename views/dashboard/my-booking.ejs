@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/my-booking.css">
+</head>
+<body class="my-booking-page">
+  <%- include('../partials/navbar', { lang: 'ar', active: 'my-booking', user: typeof user !== 'undefined' ? user : null }) %>
+  <div class="layout">
+    <main class="page-shell">
+      <header class="page-head">
+        <div>
+          <p class="eyebrow">حجوزاتي</p>
+          <h1>كل حجوزاتك في مكان واحد</h1>
+          <p class="muted">اطلع على تفاصيل كل حجز، اطبع الفاتورة، وقيم المؤجر بعد اكتمال الحجز.</p>
+        </div>
+      </header>
+
+      <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+        <div class="alert warn"><i class="fa-solid fa-triangle-exclamation"></i><%= errorMessage %></div>
+      <% } %>
+
+      <% if ((bookings || []).length === 0) { %>
+        <div class="empty">لا توجد حجوزات حالياً.</div>
+      <% } %>
+
+      <section class="cards">
+        <% (bookings || []).forEach(b => { %>
+            <% const img = (b.Space && b.Space.images && b.Space.images[0]) ? b.Space.images[0] : null;
+               let cover = '/images/space-placeholder.jpg';
+               if (img && img.file_path) {
+                 const fp = img.file_path.replace(/\\\\/g, '/');
+                 if (fp.startsWith('http')) {
+                   cover = fp;
+                 } else if (fp.startsWith('/uploads') || fp.startsWith('uploads')) {
+                   cover = fp.startsWith('/') ? fp : '/' + fp;
+                 } else {
+                   cover = '/uploads/' + fp;
+                 }
+               }
+            %>
+          <article class="card">
+            <div class="cover" style="background-image: url('<%= cover %>');"></div>
+            <div class="card-body">
+              <div class="card-top">
+                <div>
+                  <p class="eyebrow">رقم الحجز</p>
+                  <h3>#<%= b.id %></h3>
+                  <p class="muted"><%= b.Space ? b.Space.name : 'مساحة' %></p>
+                </div>
+                <div class="pill <%= b.status %>"><%= b.status %></div>
+              </div>
+
+              <div class="info">
+                <div><span>من</span><strong><%= new Date(b.start_time).toLocaleString('ar') %></strong></div>
+                <div><span>إلى</span><strong><%= new Date(b.end_time).toLocaleString('ar') %></strong></div>
+                <div><span>الإجمالي</span><strong><%= b.total_price || 0 %> ر.س</strong></div>
+                <div><span>النوع</span><strong><%= b.Space ? (b.Space.rental_type === 'daily' ? 'يومي' : 'ساعي') : '—' %></strong></div>
+                <div><span>الدفع</span><strong><%= b.Payment ? (b.Payment.amount + ' ر.س (' + b.Payment.payment_method + ')') : 'غير مدفوع' %></strong></div>
+                <div><span>معرف الحجز</span><strong>#<%= b.id %></strong></div>
+              </div>
+
+              <div class="actions">
+                <a class="btn ghost" href="/booking/<%= b.id %>/print" target="_blank"><i class="fa-solid fa-print"></i><span>طباعة</span></a>
+                <% if (b.status === 'pending') { %>
+                  <a class="btn ghost" href="/booking/<%= b.id %>/payment" target="_blank"><i class="fa-solid fa-receipt"></i><span>الدفع</span></a>
+                <% } %>
+                <% if (b.Reviews && b.Reviews.length) { %>
+                  <button class="btn primary" disabled><i class="fa-solid fa-star"></i><span>تم التقييم</span></button>
+                <% } else { %>
+                  <a class="btn primary" href="/reviews?booking_id=<%= b.id %>&space_id=<%= b.space_id %>"><i class="fa-solid fa-star"></i><span>تقييم المؤجر</span></a>
+                <% } %>
+              </div>
+
+              <% if (b.Reviews && b.Reviews.length) { const r = b.Reviews[0]; %>
+                <div class="review-chip"><i class="fa-solid fa-star"></i> تقييمك: <%= r.rating %>/5 — <%= r.comment || 'بدون تعليق' %></div>
+              <% } %>
+            </div>
+          </article>
+        <% }) %>
+      </section>
+    </main>
+  </div>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/admin.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" />
+</head>
+<body class="admin-layout">
+  <%- include('../partials/navbar', { lang: 'ar', active: 'dashboard', user: user || null }) %>
+
+  <main class="admin-shell">
+    <div class="admin-hero">
+      <div>
+        <p class="badge-soft">المالية</p>
+        <h1>ملخص المدفوعات</h1>
+        <p style="color:#9ca3af; margin:6px 0 0;">آخر 50 عملية دفع. عمولة المنصة 10%.</p>
+      </div>
+      <a class="link-button" href="/admin">العودة للوحة الأدمن</a>
+    </div>
+
+    <% if (totals) { %>
+      <section class="admin-grid" style="margin-top:0;">
+        <div class="admin-card metric">
+          <span>إجمالي المدفوع (ر.س)</span>
+          <strong class="warn"><%= totals.gross %></strong>
+        </div>
+        <div class="admin-card metric">
+          <span>عمولة المنصة 10% (ر.س)</span>
+          <strong class="ok"><%= totals.platform %></strong>
+        </div>
+        <div class="admin-card metric">
+          <span>صافي المؤجرين (ر.س)</span>
+          <strong><%= totals.payout %></strong>
+        </div>
+      </section>
+    <% } %>
+
+    <section class="admin-card table-card">
+      <% if (payments && payments.length) { %>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>الحجز</th>
+              <th>إجمالي المبلغ</th>
+              <th>عمولة 10%</th>
+              <th>صافي المؤجر</th>
+              <th>الحالة</th>
+              <th>التاريخ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% payments.forEach((p, idx) => { %>
+              <tr>
+                <td><%= idx + 1 %></td>
+                <td><%= p.booking_id %></td>
+                <td><%= p.amount %> ر.س</td>
+                <td><%= p.platform_fee %> ر.س</td>
+                <td><%= p.payout %> ر.س</td>
+                <td><span class="status-pill <%= p.status === 'failed' ? 'danger' : p.status === 'pending' ? 'warn' : '' %>"><%= p.status %></span></td>
+                <td><%= new Date(p.created_at).toLocaleString('ar') %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } else { %>
+        <p class="empty">لا توجد بيانات دفع حتى الآن.</p>
+      <% } %>
+    </section>
+  </main>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

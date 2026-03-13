@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title || 'تسجيل الدخول' %></title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/login.css" />
+</head>
+<body>
+  <%- include('../partials/navbar', { lang: 'ar', active: 'login', user: typeof user !== 'undefined' ? user : null }) %>
+
+  <section class="login-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <p class="eyebrow">مساحتك</p>
+      <h1>سجّل دخولك واستكمل حجزك بسهولة</h1>
+      <p class="lead">أمان، سرعة، وتجربة سلسة لكل المساحات</p>
+    </div>
+  </section>
+
+  <section class="login-wrapper">
+    <div class="glass-card">
+      <div class="card-header">
+        <div>
+          <p class="eyebrow">أهلاً بك مجدداً</p>
+          <h2>تسجيل الدخول</h2>
+          <p class="muted">أدخل بياناتك للمتابعة</p>
+        </div>
+        <i class="fa-solid fa-right-to-bracket"></i>
+      </div>
+
+      <% if (typeof successMessage !== 'undefined' && successMessage) { %>
+        <div class="alert alert-success">
+          <i class="fa-solid fa-circle-check"></i>
+          <span><%= successMessage %></span>
+        </div>
+      <% } %>
+
+      <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+        <div class="alert alert-error">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <span><%= errorMessage %></span>
+        </div>
+      <% } %>
+
+      <form class="form-grid" method="POST" action="/auth/login">
+        <div class="form-field">
+          <label for="email">البريد الإلكتروني</label>
+          <div class="input-wrap">
+            <i class="fa-regular fa-envelope"></i>
+            <input id="email" name="email" type="email" required placeholder="example@mail.com" autocomplete="email" />
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="password">كلمة المرور</label>
+          <div class="input-wrap">
+            <i class="fa-solid fa-lock"></i>
+            <input id="password" name="password" type="password" required placeholder="••••••••" autocomplete="current-password" />
+          </div>
+        </div>
+
+        <div class="form-meta">
+          <label class="checkbox">
+            <input type="checkbox" name="remember" value="1" />
+            <span>تذكرني</span>
+          </label>
+          <a class="link" href="/auth/forgot">نسيت كلمة المرور؟</a>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+            تسجيل الدخول
+          </button>
+          <a class="ghost" href="/auth/register">لا تملك حساباً؟ إنشاء حساب</a>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

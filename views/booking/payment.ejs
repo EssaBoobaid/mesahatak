@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/payment.css">
+</head>
+<body class="payment-page">
+  <%- include('../partials/navbar', { lang: 'ar', active: 'booking', user: typeof user !== 'undefined' ? user : null }) %>
+
+  <main class="payment-shell">
+    <section class="card">
+      <header class="card-header">
+        <div>
+          <p class="eyebrow">الدفع</p>
+          <h1>أكمل عملية الدفع</h1>
+          <p class="muted">استخدم بيانات البطاقة لتأكيد الحجز.</p>
+        </div>
+      </header>
+
+      <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+        <div class="alert"><i class="fa-solid fa-triangle-exclamation"></i><%= errorMessage %></div>
+      <% } %>
+
+      <% if (booking) { %>
+        <div class="payment-grid">
+          <div class="card soft">
+            <h3>بيانات البطاقة</h3>
+            <form id="payForm">
+              <div class="field">
+                <span>اسم حامل البطاقة</span>
+                <input type="text" name="card_holder" placeholder="الاسم على البطاقة" required />
+              </div>
+              <div class="field">
+                <span>رقم البطاقة</span>
+                <input type="text" name="card_number" placeholder="1234 5678 9012 3456" required />
+              </div>
+              <div class="two-cols">
+                <label class="field">
+                  <span>تاريخ الانتهاء</span>
+                  <input type="text" name="exp" placeholder="MM/YY" required />
+                </label>
+                <label class="field">
+                  <span>CVC</span>
+                  <input type="text" name="cvc" placeholder="123" required />
+                </label>
+              </div>
+              <label class="field">
+                <span>طريقة الدفع</span>
+                <select name="payment_method">
+                  <option value="card">بطاقة ائتمانية</option>
+                  <option value="mada">مدى</option>
+                </select>
+              </label>
+              <div class="actions">
+                <button type="submit" class="btn primary"><i class="fa-solid fa-lock"></i><span>ادفع الآن</span></button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card soft">
+            <h3>ملخص الحجز</h3>
+            <ul class="summary-list">
+              <li><span>المساحة</span><strong><%= booking.Space ? booking.Space.name : '' %></strong></li>
+              <li><span>من</span><strong><%= new Date(booking.start_time).toLocaleString('ar') %></strong></li>
+              <li><span>إلى</span><strong><%= new Date(booking.end_time).toLocaleString('ar') %></strong></li>
+              <li><span>المبلغ</span><strong><%= booking.total_price %> ر.س</strong></li>
+              <li><span>الحالة</span><strong><%= booking.status %></strong></li>
+            </ul>
+          </div>
+        </div>
+      <% } %>
+    </section>
+  </main>
+
+  <%- include('../partials/footer') %>
+
+  <div class="loading-overlay" id="payOverlay" aria-hidden="true">
+    <div class="loader"></div>
+    <p>تم الدفع وتأكيد الحجز، جاري نقلك لصفحة التأكيد...</p>
+  </div>
+
+  <script src="/js/payment.js"></script>
+</body>
+</html>

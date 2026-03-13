@@ -1,0 +1,102 @@
+<% const translations = {
+  ar: {
+    home: 'الرئيسية',
+    courses: 'المساحات',
+    dashboard: 'لوحة التحكم',
+    profile: 'الملف الشخصي',
+    logout: 'تسجيل الخروج',
+    login: 'تسجيل الدخول',
+    register: 'إنشاء حساب',
+    language: 'English',
+    notifications: 'الإشعارات',
+    settings: 'الإعدادات',
+    help: 'المساعدة',
+    welcome: 'مرحباً'
+  },
+  en: {
+    home: 'Home',
+    courses: 'Spaces',
+    dashboard: 'Dashboard',
+    profile: 'Profile',
+    logout: 'Logout',
+    login: 'Login',
+    register: 'Register',
+    language: 'العربية',
+    notifications: 'Notifications',
+    settings: 'Settings',
+    help: 'Help',
+    welcome: 'Welcome'
+  }
+};
+
+const currentLang = typeof lang !== 'undefined' ? lang : 'ar';
+const t = translations[currentLang] || translations.en;
+const rtl = currentLang === 'ar';
+const isAuthenticated = typeof user !== 'undefined' && user;
+const isAdmin = isAuthenticated && user.role === 'admin';
+const initials = isAuthenticated && user.name ? user.name.trim().substring(0, 2).toUpperCase() : 'G';
+const displayName = (() => {
+  if (!isAuthenticated) return t.welcome;
+  const full = user.full_name || user.name || t.welcome;
+  const trimmed = full.trim();
+  return trimmed.length > 10 ? `${trimmed.substring(0, 10)}...` : trimmed;
+})();
+const toggleLang = rtl ? 'en' : 'ar';
+const langSwitchHref = typeof langSwitchUrl !== 'undefined' ? langSwitchUrl : `?lang=${toggleLang}`;
+const notifCount = typeof notificationsCount !== 'undefined' ? notificationsCount : 0;
+const activeItem = typeof active !== 'undefined' ? active : '';
+%>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/navbar.css">
+
+<nav class="navbar-pro <%= rtl ? 'rtl' : 'ltr' %>">
+  <div class="nav-section">
+    <div class="logo" aria-label="Mesahatak">
+      <a href="/index">
+        <img src="/images/logo.png" alt="Mesahatak logo" onerror="this.style.display='none'; this.previousElementSibling?.classList.add('logo-fallback');">
+        <div class="logo-fallback">MS</div>
+      </a>
+    </div>
+
+    <% if (!isAdmin) { %>
+      <a class="nav-link <%= activeItem === 'spaces' ? 'active' : '' %>" href="/spaces">
+        <i class="fa-solid fa-layer-group"></i><span><%= t.courses %></span>
+      </a>
+    <% } %>
+
+    <% if (isAuthenticated) { %>
+      <a class="nav-link <%= activeItem === 'dashboard' ? 'active' : '' %>" href="<%= isAdmin ? '/admin' : '/dashboard' %>">
+        <i class="fa-solid fa-gauge-high"></i><span><%= t.dashboard %></span>
+      </a>
+    <% } %>
+  </div>
+
+  <div class="actions">
+    <% if (!isAuthenticated) { %>
+      <a class="nav-link" href="/auth/login">
+        <i class="fa-solid fa-right-to-bracket"></i><span><%= t.login %></span>
+      </a>
+      <a class="nav-link" href="/auth/register">
+        <i class="fa-solid fa-user-plus"></i><span><%= t.register %></span>
+      </a>
+    <% } else { %>
+      <div class="user-box" id="userBox" tabindex="0" aria-haspopup="true" aria-expanded="false">
+        <div class="user-avatar"><%= initials %></div>
+        <div class="user-info">
+          <div class="user-name"><%= displayName %></div>
+        </div>
+        <i class="fa-solid fa-chevron-down"></i>
+
+        <div class="user-dropdown" id="userDropdown" role="menu">
+          <a href="/profile" role="menuitem"><i class="fa-regular fa-id-badge"></i><%= t.profile %></a>
+          <a href="<%= langSwitchHref %>" role="menuitem"><i class="fa-solid fa-language"></i><%= t.language %></a>
+          <a href="/auth/logout" role="menuitem"><i class="fa-solid fa-arrow-right-from-bracket"></i><%= t.logout %></a>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</nav>
+
+<script src="/js/navbar.js"></script>

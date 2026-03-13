@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title || 'لوحة التحكم' %></title>
+  <link rel="stylesheet" href="/css/dashboard.css" />
+</head>
+<body>
+  <%- include('../partials/navbar', { lang: typeof lang !== 'undefined' ? lang : 'ar', active: 'dashboard', user: typeof user !== 'undefined' ? user : null }) %>
+
+  <% const data = dashboardData || {}; %>
+  <% const stats = data.stats || []; %>
+  <% const actions = data.actions || []; %>
+  <% const upcoming = data.upcomingBookings || []; %>
+  <% const rents = data.activeRents || []; %>
+  <% const recs = data.recommendations || []; %>
+  <% const timeline = data.timeline || []; %>
+  <% const chart = (typeof monthlyChart !== 'undefined' && monthlyChart) ? monthlyChart : (data.monthlyChart || { labels: [], bookings: [], revenue: [] }); %>
+  <% const chartHasData = (chart.bookings || []).some(v => v > 0) || (chart.revenue || []).some(v => v > 0); %>
+  <% const formatDate = (val) => { const dt = new Date(val); return isNaN(dt) ? val : dt.toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' }); }; %>
+
+  <main class="dashboard-shell">
+    <section class="dashboard-hero">
+      <div class="hero-overlay"></div>
+      <div class="hero-pattern"></div>
+      <div class="hero-content">
+        <div class="hero-top">
+          <div>
+            <p class="eyebrow">لوحة التحكم</p>
+            <h1>أهلاً بك <%= (user && (user.full_name || user.name)) ? (user.full_name || user.name) : 'مستخدم' %></h1>
+            <p class="lede">كل ما يخص حجوزاتك ومساحاتك في مكان واحد.</p>
+          </div>
+        </div>
+        <% if (stats.length) { %>
+          <div class="stats-grid">
+            <% stats.forEach((item) => { %>
+              <div class="stat-card tone-<%= item.tone || 'primary' %>">
+                <div class="stat-icon"><i class="fa-solid <%= item.icon %>"></i></div>
+                <div>
+                  <p class="stat-label"><%= item.label %></p>
+                  <div class="stat-value"><%= item.value %></div>
+                  <span class="stat-change"><%= item.change || '' %></span>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        <% } %>
+      </div>
+    </section>
+
+    <section class="dashboard-grid">
+      <div class="panel wide">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">إجراءات سريعة</p>
+            <h3>ابدأ بخطوة واحدة</h3>
+          </div>
+          <a href="/spaces" class="link-light">عرض كل المساحات <i class="fa-solid fa-arrow-left"></i></a>
+        </div>
+        <div class="actions-grid">
+          <% actions.forEach(action => { %>
+            <a class="action-tile" href="<%= action.href %>">
+              <div class="action-icon"><i class="fa-solid <%= action.icon %>"></i></div>
+              <div class="action-body">
+                <p class="action-title"><%= action.label %></p>
+                <span class="action-cta">انتقال <i class="fa-solid fa-arrow-left"></i></span>
+              </div>
+            </a>
+          <% }); %>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">حجوزات قادمة</p>
+            <h3>تابع جدولك</h3>
+          </div>
+          <a href="/dashboard/my-booking" class="link-light">كل الحجوزات</a>
+        </div>
+        <div class="list">
+          <% if (upcoming.length === 0) { %>
+            <div class="empty">لا توجد حجوزات قادمة حالياً.</div>
+          <% } %>
+          <% upcoming.forEach(item => { %>
+            <div class="list-row">
+              <div class="list-main">
+                <h4><i class="fa-solid fa-calendar-day"></i> <%= item.title %></h4>
+                <p class="muted"><i class="fa-solid fa-location-dot"></i> <%= item.location %> • طلب #<%= item.id %></p>
+              </div>
+              <div class="list-meta">
+                <span class="chip"><%= item.status %></span>
+                <p class="muted"><%= formatDate(item.date) %></p>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">مساحاتي المؤجرة</p>
+            <h3>الأداء الشهري</h3>
+          </div>
+          <a href="/dashboard/rent-performance" class="link-light">إدارة التأجير</a>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="rentBarChart" data-chart='<%- JSON.stringify(chart || { labels: [], bookings: [], revenue: [] }) %>'></canvas>
+          <% if (!chartHasData) { %>
+            <div class="empty" style="margin-top: 12px;">لا توجد بيانات بعد.</div>
+          <% } %>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">مقترحات لك</p>
+            <h3>مساحات تناسب أسلوبك</h3>
+          </div>
+          <a href="/spaces" class="link-light">استعراض المزيد</a>
+        </div>
+        <div class="recommend-grid">
+          <% if (recs.length === 0) { %>
+            <div class="empty">سنجهز لك توصيات مخصصة قريباً.</div>
+          <% } %>
+          <% recs.forEach(card => { %>
+            <div class="recommend-card">
+              <div class="tag"><%= card.tag %></div>
+              <h4><%= card.title %></h4>
+              <p class="muted"><i class="fa-solid fa-location-dot"></i> <%= card.location %></p>
+              <div class="price"><%= card.price %></div>
+              <a href="/spaces" class="link-inline">تفاصيل المساحة <i class="fa-solid fa-arrow-left"></i></a>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">النشاط</p>
+            <h3>آخر المستجدات</h3>
+          </div>
+        </div>
+        <div class="timeline">
+          <% if (timeline.length === 0) { %>
+            <div class="empty">لا توجد أنشطة جديدة.</div>
+          <% } %>
+          <% timeline.forEach(item => { %>
+            <div class="time-row tone-<%= item.tone || 'primary' %>">
+              <div class="dot"></div>
+              <div>
+                <p class="time-title"><%= item.title %></p>
+                <p class="muted"><%= item.desc %></p>
+              </div>
+              <span class="time-meta"><%= formatDate(item.time) %></span>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-panel">
+      <div>
+        <p class="eyebrow">جاهز للخطوة التالية؟</p>
+        <h2>انشر مساحتك الآن وابدأ تحقيق الدخل.</h2>
+        <p class="muted">إضافة مساحتك لا يستغرق أكثر من دقيقتين مع خطوات إرشادية سريعة.</p>
+      </div>
+      <div class="cta-actions">
+        <a href="/dashboard/add-space" class="btn-primary"><i class="fa-solid fa-plus"></i> إضافة مساحة</a>
+        <a href="/spaces" class="btn-ghost">استكشاف المساحات</a>
+      </div>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="/js/dashboard-chart.js"></script>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

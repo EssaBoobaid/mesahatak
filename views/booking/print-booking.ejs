@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/payment.css">
+</head>
+<body class="payment-page print-only">
+  <%- include('../partials/navbar', { lang, user, active }) %>
+  <% if (booking) { %>
+    <div class="page-actions">
+      <a class="btn review-cta" href="/reviews?booking_id=<%= booking.id %>&space_id=<%= booking.space_id || (booking.Space ? booking.Space.id : '') %>">
+        <i class="fa-solid fa-star"></i>
+        <span>قيّم تجربتك</span>
+      </a>
+      <button class="btn secondary" type="button" onclick="window.print()">
+        <i class="fa-solid fa-print"></i><span>طباعة</span>
+      </button>
+    </div>
+  <% } %>
+  <% if (booking) { %>
+    <main class="invoice">
+      <div class="invoice-header">
+        <div>
+          <p class="eyebrow">فاتورة حجز</p>
+          <h1>مساحتك</h1>
+        </div>
+        <div>
+          <p>رقم الحجز: <strong><%= booking.id %></strong></p>
+          <p>التاريخ: <strong><%= new Date().toLocaleDateString('ar') %></strong></p>
+        </div>
+      </div>
+
+      <section class="invoice-body">
+        <div class="two-cols">
+          <div>
+            <h3>تفاصيل الحجز</h3>
+            <ul class="summary-list">
+              <li><span>المساحة</span><strong><%= booking.Space ? booking.Space.name : '' %></strong></li>
+              <li><span>من</span><strong><%= new Date(booking.start_time).toLocaleString('ar') %></strong></li>
+              <li><span>إلى</span><strong><%= new Date(booking.end_time).toLocaleString('ar') %></strong></li>
+              <li><span>الإجمالي</span><strong><%= booking.total_price %> ر.س</strong></li>
+              <li><span>الحالة</span><strong><%= booking.status %></strong></li>
+            </ul>
+          </div>
+          <div>
+            <h3>الدفع</h3>
+            <% if (booking.Payment) { %>
+              <ul class="summary-list">
+                <li><span>المبلغ المدفوع</span><strong><%= booking.Payment.amount %> ر.س</strong></li>
+                <li><span>طريقة الدفع</span><strong><%= booking.Payment.payment_method %></strong></li>
+                <li><span>رقم العملية</span><strong><%= booking.Payment.transaction_id %></strong></li>
+                <li><span>تاريخ الدفع</span><strong><%= booking.Payment.created_at ? new Date(booking.Payment.created_at).toLocaleString('ar') : '' %></strong></li>
+              </ul>
+            <% } else { %>
+              <p class="muted">لم يتم تسجيل دفع.</p>
+            <% } %>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  <% } else { %>
+    <main class="invoice">
+      <p class="muted">الحجز غير موجود.</p>
+    </main>
+  <% } %>
+</body>
+</html>

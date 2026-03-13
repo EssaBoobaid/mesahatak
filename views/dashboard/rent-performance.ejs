@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/rent-performance.css">
+</head>
+<body class="rent-performance-page">
+  <%- include('../partials/navbar', { lang: 'ar', active: 'dashboard', user: typeof user !== 'undefined' ? user : null }) %>
+
+  <main class="rp-shell">
+    <header class="hero card">
+      <div>
+        <p class="eyebrow">أداء التأجير</p>
+        <h1>نظرة شاملة على مساحاتك المؤجرة</h1>
+        <p class="muted">اطلع على الحجوزات، المدفوعات، تقييمات المستأجرين، وكل ما تحتاجه لاتخاذ قراراتك بسرعة.</p>
+      </div>
+      <div class="hero-actions">
+        <a class="btn ghost" href="/dashboard/my-rent"><i class="fa-solid fa-sliders"></i><span>إدارة المساحات</span></a>
+      </div>
+    </header>
+
+    <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+      <div class="alert warn"><i class="fa-solid fa-triangle-exclamation"></i><%= errorMessage %></div>
+    <% } %>
+
+    <% if (!spaces || !spaces.length) { %>
+      <div class="empty">لا توجد مساحات مؤجرة حالياً.</div>
+    <% } %>
+
+    <section class="spaces-grid">
+      <% (spaces || []).forEach(space => { %>
+        <article class="card space-card">
+          <div class="space-head">
+            <div>
+              <p class="eyebrow">معرف #<%= space.id %></p>
+              <h2><%= space.name %></h2>
+              <div class="tag-row">
+                <span class="badge"><i class="fa-solid fa-location-dot"></i> <%= space.city %></span>
+                <span class="badge accent"><i class="fa-regular fa-clock"></i> <%= space.rental_type === 'daily' ? 'يومي' : 'ساعات' %></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-body">
+            <div class="bookings">
+              <div class="bookings-head">
+                <h3>الحجوزات</h3>
+              </div>
+              <% if (!space.bookings.length) { %>
+                <p class="muted">لا توجد حجوزات بعد.</p>
+              <% } %>
+              <% space.bookings.forEach(b => { %>
+                <div class="booking-row">
+                  <div class="booking-top">
+                    <% if (b.review) { %>
+                      <div class="review-chip"><i class="fa-solid fa-star"></i> <%= b.review.rating %>/5 — <%= b.review.comment || 'بدون تعليق' %></div>
+                    <% } %>
+                    <p class="label">طلب #<%= b.id %> — <span class="status <%= b.status %>"><%= b.status %></span></p>
+                  </div>
+                  <div>
+                    <p class="muted">من <%= new Date(b.start_time).toLocaleDateString('ar-EG') %> إلى <%= new Date(b.end_time).toLocaleDateString('ar-EG') %> • <%= b.nights %> يوم</p>
+                    <p class="muted">المدفوع: <strong><%= b.payment ? b.payment.amount : '—' %> ر.س</strong></p>
+                  </div>
+                  <div class="guest">
+                    <p><i class="fa-solid fa-user"></i> <%= b.guest ? b.guest.full_name : 'مستخدم' %></p>
+                    <p class="muted"><i class="fa-solid fa-phone"></i> <%= b.guest ? (b.guest.phone || '—') : '—' %></p>
+                  </div>
+                </div>
+              <% }); %>
+            </div>
+            <div class="stats-panel">
+              <div class="metrics">
+                <div>
+                  <p class="label">إجمالي الحجوزات</p>
+                  <strong><%= space.metrics.total %></strong>
+                </div>
+                <div>
+                  <p class="label">مكتملة</p>
+                  <strong><%= space.metrics.completed %></strong>
+                </div>
+                <div>
+                  <p class="label">قادمة</p>
+                  <strong><%= space.metrics.upcoming %></strong>
+                </div>
+                <div>
+                  <p class="label">إيرادات</p>
+                  <strong><%= space.metrics.revenue.toLocaleString('ar-EG') %> ر.س</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+      <% }); %>
+    </section>
+  </main>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

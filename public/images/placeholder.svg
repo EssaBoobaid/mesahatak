@@ -1,0 +1,27 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder">
+  <defs>
+    <linearGradient id="g" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop stop-color="#1f3b64" offset="0%"/>
+      <stop stop-color="#0f2744" offset="50%"/>
+      <stop stop-color="#0a1b2d" offset="100%"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0%" x2="100%" y1="100%" y2="0%">
+      <stop stop-color="#f4b23a" stop-opacity="0.28" offset="0%"/>
+      <stop stop-color="#4ad9c6" stop-opacity="0.16" offset="100%"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#g)"/>
+  <circle cx="180" cy="160" r="120" fill="url(#g2)"/>
+  <circle cx="1040" cy="260" r="160" fill="url(#g2)"/>
+  <rect x="220" y="260" width="760" height="320" rx="32" fill="#ffffff0d" stroke="#ffffff22" stroke-width="4"/>
+  <rect x="260" y="300" width="340" height="240" rx="18" fill="#ffffff12" stroke="#ffffff1f" stroke-width="3"/>
+  <path d="M290 500 L430 360 L540 460" fill="none" stroke="#f4b23a" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
+  <circle cx="470" cy="380" r="36" fill="#4ad9c6" opacity="0.85"/>
+  <rect x="640" y="320" width="260" height="28" rx="10" fill="#ffffff24"/>
+  <rect x="640" y="370" width="220" height="22" rx="10" fill="#ffffff1a"/>
+  <rect x="640" y="410" width="260" height="22" rx="10" fill="#ffffff1a"/>
+  <rect x="640" y="450" width="200" height="22" rx="10" fill="#ffffff1a"/>
+  <rect x="640" y="500" width="160" height="38" rx="14" fill="#f4b23a" opacity="0.85"/>
+  <rect x="820" y="500" width="120" height="38" rx="14" fill="#4ad9c6" opacity="0.8"/>
+  <text x="600" y="620" fill="#ffffffaa" font-family="'Segoe UI', 'Cairo', sans-serif" font-size="46" font-weight="700" text-anchor="middle">صورة المساحة</text>
+</svg>

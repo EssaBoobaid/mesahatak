@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="<%= lang === 'en' ? 'en' : 'ar' %>" dir="<%= lang === 'en' ? 'ltr' : 'rtl' %>">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap">
+  <link rel="stylesheet" href="/css/space-details.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+</head>
+<body class="space-details-page">
+  <%- include('../partials/navbar', { lang, active, user: typeof user !== 'undefined' ? user : null }) %>
+
+  <main class="space-details-shell">
+    <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+      <div class="alert error"><i class="fa-solid fa-triangle-exclamation"></i><%= errorMessage %></div>
+    <% } %>
+
+    <% if (typeof space !== 'undefined' && space) { %>
+      <% const images = space.images && space.images.length ? space.images : [{ file_path: '/images/placeholder.svg' }]; %>
+      <section class="hero-grid">
+        <div class="gallery-card">
+          <div class="gallery-main" id="galleryMain" style="background-image: url('<%= images[0].file_path %>');"></div>
+          <div class="gallery-controls">
+            <button type="button" id="prevSlide"><i class="fa-solid fa-chevron-right"></i></button>
+            <div class="dots" id="galleryDots">
+              <% images.forEach((img, idx) => { %>
+                <span class="dot <%= idx === 0 ? 'active' : '' %>" data-index="<%= idx %>"></span>
+              <% }) %>
+            </div>
+            <button type="button" id="nextSlide"><i class="fa-solid fa-chevron-left"></i></button>
+          </div>
+          <div class="thumbs" id="galleryThumbs">
+            <% images.forEach((img, idx) => { %>
+              <div class="thumb <%= idx === 0 ? 'active' : '' %>" data-index="<%= idx %>" style="background-image: url('<%= img.file_path %>');"></div>
+            <% }) %>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="price-box">
+            <% if (space.rental_type === 'hourly') { %>
+              <div class="price"><%= space.price_per_block ? space.price_per_block + ' ر.س' : '—' %></div>
+              <div class="note">لكل <%= space.block_hours || '—' %> ساعة</div>
+            <% } else if (space.rental_type === 'daily') { %>
+              <div class="price"><%= space.price_per_day ? space.price_per_day + ' ر.س' : '—' %></div>
+              <div class="note">لليوم</div>
+            <% } else if (space.rental_type === 'monthly') { %>
+              <div class="price"><%= space.price_per_month ? space.price_per_month + ' ر.س' : '—' %></div>
+              <div class="note">للشهر <%= space.min_months ? `(حد أدنى ${space.min_months} شهر)` : '' %></div>
+            <% } else if (space.rental_type === 'yearly') { %>
+              <div class="price"><%= space.price_per_year ? space.price_per_year + ' ر.س' : '—' %></div>
+              <div class="note">للسنة <%= space.min_years ? `(حد أدنى ${space.min_years} سنة)` : '' %></div>
+            <% } else { %>
+              <div class="price">—</div>
+              <div class="note"></div>
+            <% } %>
+          </div>
+
+          <h1 class="title"><%= space.name %></h1>
+          <div class="meta">
+            <span><i class="fa-solid fa-location-dot"></i><%= space.City ? space.City.name : '—' %></span>
+            <span><i class="fa-solid fa-layer-group"></i><%= space.category %></span>
+            <span><i class="fa-solid fa-tag"></i><%= space.subcategory %></span>
+            <% if (space.google_maps_url) { %>
+              <a class="link" href="<%= space.google_maps_url %>" target="_blank" rel="noopener">رابط الموقع</a>
+            <% } %>
+          </div>
+
+          <div class="rental">
+            <% const rentalLabel = space.rental_type === 'hourly' ? 'بالساعات' : space.rental_type === 'daily' ? 'يومي' : space.rental_type === 'monthly' ? 'شهري' : 'سنوي'; %>
+            <div><i class="fa-regular fa-clock"></i>نوع الإيجار: <strong><%= rentalLabel %></strong></div>
+            <% if (space.rental_type === 'hourly') { %>
+              <div>ساعات العمل: <%= space.work_start || '--:--' %> - <%= space.work_end || '--:--' %></div>
+            <% } %>
+            <% if (space.rental_type === 'monthly' && space.min_months) { %>
+              <div>أقل مدة: <%= space.min_months %> شهر</div>
+            <% } %>
+            <% if (space.rental_type === 'yearly' && space.min_years) { %>
+              <div>أقل مدة: <%= space.min_years %> سنة</div>
+            <% } %>
+            <% if (space.availability_start || space.availability_end) { %>
+              <div>الإتاحة: <%= space.availability_start || '—' %> → <%= space.availability_end || 'مفتوح' %></div>
+            <% } %>
+          </div>
+
+          <div class="actions">
+            <% if (user) { %>
+              <a class="btn primary" href="/booking?space=<%= space.id %>"><i class="fa-solid fa-calendar-check"></i><span>احجز الآن</span></a>
+            <% } else { %>
+              <a class="btn outline" href="/auth/login"><i class="fa-solid fa-right-to-bracket"></i><span>تسجيل الدخول للحجز</span></a>
+            <% } %>
+          </div>
+        </div>
+      </section>
+
+      <section class="owner-card">
+        <div class="owner-main">
+          <div>
+            <p class="eyebrow">صاحب الإعلان</p>
+            <h3><a href="/reviews?user=<%= space.user_id %>"><%= space.User ? space.User.full_name : 'حساب المعلن' %></a></h3>
+            <div class="rating-row">
+              <i class="fa-solid fa-star"></i>
+              <span>التقييمات الأخيرة</span>
+            </div>
+          </div>
+        </div>
+        <div class="reviews">
+          <% const recentReviews = (space.Reviews || []).slice(0, 3); %>
+          <% if (recentReviews.length) { %>
+            <% recentReviews.forEach(r => { %>
+              <div class="review">
+                <div class="review-head">
+                  <strong><%= r.User ? r.User.full_name : 'مستخدم' %></strong>
+                  <span class="time"><%= r.created_at ? new Date(r.created_at).toLocaleDateString('ar') : '' %></span>
+                </div>
+                <div class="stars">
+                  <% for (let i = 0; i < (r.rating || 0); i++) { %><i class="fa-solid fa-star"></i><% } %>
+                </div>
+                <p><%= r.comment || '' %></p>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <p class="muted">لا توجد تقييمات بعد.</p>
+          <% } %>
+        </div>
+      </section>
+
+      <section class="details-card">
+        <h2>تفاصيل المساحة</h2>
+        <% if (space.description) { %>
+          <p class="lead"><%= space.description %></p>
+        <% } else { %>
+          <p class="muted">لا توجد تفاصيل مضافة.</p>
+        <% } %>
+      </section>
+
+      <section class="content-card">
+        <h2>محتوى المساحة</h2>
+        <% const contentLines = space.content ? space.content.split(/\r?\n/).filter(Boolean) : []; %>
+        <% if (contentLines.length) { %>
+          <ul>
+            <% contentLines.forEach(line => { %>
+              <li><%= line %></li>
+            <% }) %>
+          </ul>
+        <% } else { %>
+          <p class="muted">لا يوجد محتوى مرفق.</p>
+        <% } %>
+      </section>
+    <% } %>
+  </main>
+
+  <%- include('../partials/footer') %>
+
+  <script>
+    (() => {
+      const thumbs = Array.from(document.querySelectorAll('#galleryThumbs .thumb'));
+      const dots = Array.from(document.querySelectorAll('#galleryDots .dot'));
+      const main = document.getElementById('galleryMain');
+      const prev = document.getElementById('prevSlide');
+      const next = document.getElementById('nextSlide');
+      let current = 0;
+
+      const setSlide = (idx) => {
+        if (!thumbs.length) return;
+        current = (idx + thumbs.length) % thumbs.length;
+        const src = thumbs[current].style.backgroundImage.slice(5, -2);
+        main.style.backgroundImage = `url('${src}')`;
+        thumbs.forEach(t => t.classList.remove('active'));
+        dots.forEach(d => d.classList.remove('active'));
+        thumbs[current].classList.add('active');
+        if (dots[current]) dots[current].classList.add('active');
+      };
+
+      thumbs.forEach(t => t.addEventListener('click', () => setSlide(Number(t.dataset.index))));
+      dots.forEach(d => d.addEventListener('click', () => setSlide(Number(d.dataset.index))));
+      if (prev) prev.addEventListener('click', () => setSlide(current - 1));
+      if (next) next.addEventListener('click', () => setSlide(current + 1));
+    })();
+  </script>
+</body>
+</html>

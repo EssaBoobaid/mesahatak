@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/profile.css">
+</head>
+<body class="profile-page">
+  <%- include('../partials/navbar', { lang: 'ar', active: 'profile', user: typeof user !== 'undefined' ? user : null }) %>
+
+  <main class="profile-shell">
+    <section class="hero-card">
+      <div>
+        <p class="eyebrow">الملف الشخصي</p>
+        <h1>حدّث بياناتك بسرعة</h1>
+        <p class="muted">يمكنك تعديل الحقول غير الحساسة، والحفظ يتم مباشرة في قاعدة البيانات.</p>
+      </div>
+      <div class="hero-badge"><i class="fa-solid fa-user-pen"></i><span>تحديث فوري</span></div>
+    </section>
+
+    <section class="card profile-card">
+      <header class="card-header">
+        <div>
+          <p class="eyebrow">بيانات الحساب</p>
+          <h2>معلوماتك</h2>
+        </div>
+        <button id="saveBtn" class="btn primary" type="button"><i class="fa-solid fa-floppy-disk"></i><span>حفظ التعديلات</span></button>
+      </header>
+
+      <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+        <div class="alert warn"><i class="fa-solid fa-triangle-exclamation"></i><%= errorMessage %></div>
+      <% } %>
+
+      <% if (userProfile) { %>
+        <form id="profileForm" class="grid">
+          <label class="field">
+            <span>الاسم الكامل</span>
+            <input type="text" name="full_name" value="<%= userProfile.full_name || '' %>" required />
+          </label>
+          <label class="field">
+            <span>البريد الإلكتروني (غير قابل للتعديل)</span>
+            <input type="email" value="<%= userProfile.email || '' %>" disabled />
+          </label>
+          <label class="field">
+            <span>رقم الجوال</span>
+            <input type="tel" name="phone" value="<%= userProfile.phone || '' %>" />
+          </label>
+          <label class="field">
+            <span>تاريخ الميلاد</span>
+            <input type="date" name="birth_date" value="<%= userProfile.birth_date ? new Date(userProfile.birth_date).toISOString().slice(0, 10) : '' %>" />
+          </label>
+          <label class="field">
+            <span>المدينة</span>
+            <select name="city_id">
+              <option value="">اختر المدينة</option>
+              <% (cities || []).forEach(c => { %>
+                <option value="<%= c.id %>" <%= userProfile.city_id == c.id ? 'selected' : '' %>><%= c.name %></option>
+              <% }) %>
+            </select>
+          </label>
+          <label class="field">
+            <span>IBAN (اختياري)</span>
+            <input type="text" name="iban" value="<%= userProfile.iban || '' %>" />
+          </label>
+        </form>
+      <% } else { %>
+        <p class="muted">لا توجد بيانات لعرضها.</p>
+      <% } %>
+
+      <div id="statusBox" class="status-box" aria-live="polite">لم يتم الحفظ بعد</div>
+    </section>
+  </main>
+
+  <%- include('../partials/footer') %>
+
+  <script src="/js/profile.js"></script>
+</body>
+</html>
