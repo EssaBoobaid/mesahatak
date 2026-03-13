@@ -333,7 +333,7 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`id`, `full_name`, `email`, `password_hash`, `birth_date`, `phone`, `iban`, `city_id`, `role`, `created_at`, `updated_at`) VALUES
 (3, 'Admin Superuser', 'admin@ksa.sa', '$2a$10$NwkTikHI/0wxYevI4RdbxukX0BICo2zy2TX.yK.cSlhOQ.I6FCX/S', '1990-01-01', '0500000000', NULL, 11, 'admin', '2026-01-18 17:03:23', '2026-01-18 17:03:23'),
 (4, 'مستخدم تجريبي', 'user@example.com', '$2a$10$osnveVrYt.q6cjCq3jdIZem/dEr4ZHwLZuMmfkFH/DktC/gMVILRO', '2000-01-01', '0500000001', 'SA0000000000000000000000', 6, 'user', '2026-01-18 17:31:59', '2026-01-23 00:25:27'),
-(5, 'موسسة السلام ', 'demo@demo.com', '$2a$10$WuED8NlARBXZzHR6zZwOY.4E.7mxbdwe3JHNJkIkdHkTo6rvdsxtC', '2002-04-18', '0555555555', 'SA2080000261608040001000', 1, 'user', '2026-01-18 17:34:28', '2026-01-18 17:34:28');
+(5, 'موسسة السلام ', 'demo@demo.com', '$2a$10$WuED8NlARBXZzHR6zZwOY.4E.7mxbdwe3JHNJkIkdHkTo6rvdsxtC', '2000-01-01', '0500000002', 'SA0000000000000000000000', 1, 'user', '2026-01-18 17:34:28', '2026-01-18 17:34:28');
 
 --
 -- Indexes for dumped tables
